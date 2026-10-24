@@ -1,0 +1,7 @@
+{
+  "required": true,
+  "package": "re.koda.easyarmorstands.gametest.mixin",
+  "compatibilityLevel": "JAVA_25",
+  "mixins": ["ServerPlayerMessageMixin"],
+  "injectors": {"defaultRequire": 1}
+}

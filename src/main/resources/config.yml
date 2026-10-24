@@ -36,6 +36,7 @@ editor:
       limit: 64
       range: 128.0
     range: 10.0
+  spawn-menu: true
   tool:
     name: <gold><lang:easyarmorstands.tool-name>
     type: blaze_rod

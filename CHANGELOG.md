@@ -1,3 +1,12 @@
+# 0.1.0 (Polymer)
+
+- Port the local Fabric-only implementation into this fork, retaining the upstream Git history.
+- Render editor gizmos with Polymer virtual entities visible to the editing player.
+- Bridge EasyArmorStands command and editor permissions to Fabric's built-in Permission API.
+- Add `editor.spawn-menu` to disable the spawn menu and its editor shortcut.
+- Package one Fabric mod and its corresponding source jar; remove Paper, NeoForge, and Bukkit integrations.
+- Add dedicated-server game tests and update CI for the Fabric-only build.
+
 # API changes
 
 * Introduced an abstraction layer to enable adding support for other platforms.

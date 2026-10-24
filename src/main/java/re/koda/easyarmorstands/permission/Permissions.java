@@ -1,0 +1,228 @@
+/*
+ * EasyArmorStands-Polymer - a Polymer based Fabric port of EasyArmorStands
+ * Copyright (C) 56738 and EasyArmorStands contributors (original work)
+ * Copyright (C) 2026 ripsquid (modifications)
+ *
+ * This file is derived from EasyArmorStands (https://github.com/56738/EasyArmorStands),
+ * commit c589944e23b49170fb7380742fe755c392f1e0c7, and was modified on 2026-10-22
+ * (package relocation and adaptation to the Polymer based Fabric port).
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+package re.koda.easyarmorstands.permission;
+
+import re.koda.easyarmorstands.api.property.type.PropertyType;
+import re.koda.easyarmorstands.platform.Platform;
+import re.koda.easyarmorstands.platform.entity.EntityType;
+import re.koda.easyarmorstands.property.type.PropertyTypeRegistryImpl;
+import net.kyori.adventure.key.Key;
+import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
+import org.intellij.lang.annotations.MagicConstant;
+
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
+import java.util.HashMap;
+import java.util.Locale;
+import java.util.Map;
+
+public class Permissions {
+    @Description("Allow aligning entities to the block grid")
+    public static final String ALIGN = "easyarmorstands.align";
+
+    @Description("Allow bypassing BentoBox restrictions")
+    public static final String BENTOBOX_BYPASS = "easyarmorstands.bentobox.bypass";
+
+    @Description("Allow copying properties")
+    public static final String CLIPBOARD = "easyarmorstands.clipboard";
+
+    @Description("Allow cloning entities")
+    public static final String CLONE = "easyarmorstands.clone";
+
+    @Description("Allow using the color picker")
+    public static final String COLOR = "easyarmorstands.color";
+
+    @Description("Allow converting armor stands to item displays")
+    public static final String CONVERT = "easyarmorstands.convert";
+
+    @Description("Allow copying entities as items (armor stands or spawn eggs)")
+    public static final String COPY_ENTITY = "easyarmorstands.copy.entity";
+
+    @Description("Allow viewing troubleshooting information")
+    public static final String DEBUG = "easyarmorstands.debug";
+
+    @Description("Allow destroying entities")
+    public static final String DESTROY = "easyarmorstands.destroy";
+
+    @Description("Allow destroying FancyHolograms holograms")
+    public static final String FANCYHOLOGRAMS_DESTROY = "easyarmorstands.fancyholograms.destroy";
+
+    @Description("Allow editing FancyHolograms holograms")
+    public static final String FANCYHOLOGRAMS_EDIT = "easyarmorstands.fancyholograms.edit";
+
+    @Description("Allow spawning FancyHolograms holograms")
+    public static final String FANCYHOLOGRAMS_SPAWN = "easyarmorstands.fancyholograms.spawn";
+
+    @Description("Allow spawning the tool item")
+    public static final String GIVE = "easyarmorstands.give";
+
+    @Description("Allow spawning the tool item into the inventory of another player")
+    public static final String GIVE_OTHER = "easyarmorstands.give.other";
+
+    @Description("Allow bypassing GriefDefender restrictions")
+    public static final String GRIEFDEFENDER_BYPASS = "easyarmorstands.griefdefender.bypass";
+
+    @Description("Allow bypassing GriefPrevention restrictions")
+    public static final String GRIEFPREVENTION_BYPASS = "easyarmorstands.griefprevention.bypass";
+
+    @Description("Allow editing groups of entities")
+    public static final String GROUP = "easyarmorstands.group";
+
+    @Description("Allow using the help command")
+    public static final String HELP = "easyarmorstands.help";
+
+    @Description("Allow showing the history")
+    public static final String HISTORY = "easyarmorstands.history";
+
+    @Description("Allow bypassing HuskClaims restrictions")
+    public static final String HUSKCLAIMS_BYPASS = "easyarmorstands.huskclaims.bypass";
+
+    @Description("Allow viewing details of the selected entity")
+    public static final String INFO = "easyarmorstands.info";
+
+    @Description("Allow bypassing Lands restrictions")
+    public static final String LANDS_BYPASS = "easyarmorstands.lands.bypass";
+
+    @Description("Allow opening the menu")
+    public static final String OPEN = "easyarmorstands.open";
+
+    @Description("Allow teleporting entities")
+    public static final String POSITION = "easyarmorstands.position";
+
+    @Description("Allow bypassing PlotSquared restrictions")
+    public static final String PLOTSQUARED_BYPASS = "easyarmorstands.plotsquared.bypass";
+
+    @Description("Allow redoing changes")
+    public static final String REDO = "easyarmorstands.redo";
+
+    @Description("Allow registering entities into EasyArmorStands")
+    public static final String REGISTER = "easyarmorstands.register";
+
+    @Description("Allow reloading the configuration")
+    public static final String RELOAD = "easyarmorstands.reload";
+
+    @Description("Allow bypassing Residence restrictions")
+    public static final String RESIDENCE_BYPASS = "easyarmorstands.residence.bypass";
+
+    @Description("Allow configuring the snapping increment")
+    public static final String SNAP = "easyarmorstands.snap";
+
+    @Description("Allow selecting matching entities using a selector")
+    public static final String SELECT = "easyarmorstands.select";
+
+    @Description("Allow selecting entities with a certain tag")
+    public static final String SELECT_TAG = "easyarmorstands.select.tag";
+
+    @Description("Allow spawning entities")
+    public static final String SPAWN = "easyarmorstands.spawn";
+
+    @Description("Allow bypassing Towny restrictions")
+    public static final String TOWNY_BYPASS = "easyarmorstands.towny.bypass";
+
+    @Description("Allow using the TrainCarts resource pack model browser")
+    public static final String TRAINCARTS_MODEL = "easyarmorstands.traincarts.model";
+
+    @Description("Allow undoing changes")
+    public static final String UNDO = "easyarmorstands.undo";
+
+    @Description("Be notified when a new version of EasyArmorStands is available")
+    public static final String UPDATE_NOTIFY = "easyarmorstands.update.notify";
+
+    @Description("Allow viewing the plugin version")
+    public static final String VERSION = "easyarmorstands.version";
+
+    @Description("Allow bypassing WorldGuard restrictions")
+    public static final String WORLDGUARD_BYPASS = "easyarmorstands.worldguard.bypass";
+
+    @Description("Allow using the editor")
+    @Child(GROUP)
+    @Child(HELP)
+    @Child(HISTORY)
+    @Child(INFO)
+    @Child(OPEN)
+    @Child(VERSION)
+    public static final String EDIT = "easyarmorstands.edit";
+
+    private Permissions() {
+    }
+
+    public static void registerAll(Platform platform, PropertyTypeRegistryImpl propertyTypeRegistry, PermissionRegistrar registrar) {
+        try {
+            for (Field field : Permissions.class.getDeclaredFields()) {
+                int modifiers = field.getModifiers();
+                if (Modifier.isPublic(modifiers) && Modifier.isStatic(modifiers) && Modifier.isFinal(modifiers)) {
+                    register(field, registrar);
+                }
+            }
+        } catch (ReflectiveOperationException e) {
+            throw new RuntimeException(e);
+        }
+
+        for (EntityType entityType : platform.getEntityTypes()) {
+            register(entityType, SPAWN, "spawning", registrar);
+            register(entityType, DESTROY, "destroying", registrar);
+            register(entityType, EDIT, "editing", registrar);
+        }
+
+        for (Key key : propertyTypeRegistry.getKeys()) {
+            PropertyType<?> type = propertyTypeRegistry.get(key);
+            String permission = type.getPermission();
+            if (permission != null) {
+                registrar.registerPermission(permission, "Allow editing " + PlainTextComponentSerializer.plainText().serialize(type.getName()), Map.of());
+            }
+        }
+    }
+
+    public static String entityType(
+            @MagicConstant(valuesFromClass = Permissions.class) String prefix,
+            EntityType type) {
+        return prefix + "." + type.key().value().toLowerCase(Locale.ROOT).replace("_", "");
+    }
+
+    private static void register(EntityType type, String owner, String verb, PermissionRegistrar registrar) {
+        String name = entityType(owner, type);
+        Map<String, Boolean> children = new HashMap<>(1);
+        children.put(owner, true);
+        registrar.registerPermission(
+                name,
+                "Allow " + verb + " entities of type " + type,
+                children);
+    }
+
+    private static void register(Field field, PermissionRegistrar registrar) throws ReflectiveOperationException {
+        String name = (String) field.get(null);
+
+        Description descriptionAnnotation = field.getDeclaredAnnotation(Description.class);
+        String description = descriptionAnnotation != null ? descriptionAnnotation.value() : null;
+
+        Children childrenAnnotation = field.getDeclaredAnnotation(Children.class);
+        Map<String, Boolean> children = new HashMap<>();
+        if (childrenAnnotation != null) {
+            for (Child child : childrenAnnotation.value()) {
+                children.put(child.value(), true);
+            }
+        }
+
+        registrar.registerPermission(name, description, children);
+    }
+}

@@ -1,6 +1,11 @@
+name: Build and test
+
 on:
   - push
   - pull_request
+
+permissions:
+  contents: read
 
 jobs:
   build:
@@ -8,8 +13,6 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          submodules: 'true'
       - name: Setup Java
         uses: actions/setup-java@b843ebf9b913146b38da2eaa7aeddf76074ae1ad # v6.1.0
         with:
@@ -17,50 +20,19 @@ jobs:
           distribution: 'temurin'
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@3f5f9adaf7d9fecd50b5935e54106014257a94e6 # v6.4.0
-      - name: Build
-        run: ./gradlew build
-      - name: Publish to repository
-        if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
-        run: ./gradlew publish
-        env:
-          ORG_GRADLE_PROJECT_m56738Username: ${{ secrets.MAVEN_M56738_USERNAME }}
-          ORG_GRADLE_PROJECT_m56738Password: ${{ secrets.MAVEN_M56738_PASSWORD }}
-      - name: Upload Fabric artifact
+      - name: Build and run game tests
+        run: ./gradlew build runGameTest --stacktrace
+      - name: Upload Fabric mod and sources
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
-          name: Fabric
-          path: fabric/build/EasyArmorStands-Fabric-*.jar
+          name: EasyArmorStands-Polymer
+          path: build/libs/EasyArmorStands-Polymer-*.jar
+          if-no-files-found: error
           archive: 'false'
-      - name: Upload NeoForge artifact
+      - name: Upload game-test logs
+        if: always()
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
-          name: NeoForge
-          path: neoforge/build/EasyArmorStands-NeoForge-*.jar
-          archive: 'false'
-      - name: Upload Paper artifact
-        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
-        with:
-          name: Paper
-          path: paper/build/EasyArmorStands-Paper-*.jar
-          archive: 'false'
-      - name: Update description
-        if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
-        run: ./gradlew :easyarmorstands-paper:modrinthSyncBody :easyarmorstands-paper:syncAllPagesToHangar
-        env:
-          HANGAR_API_TOKEN: ${{ secrets.HANGAR_API_TOKEN }}
-          MODRINTH_TOKEN: ${{ secrets.MODRINTH_TOKEN }}
-      - name: Create release
-        if: ${{ github.event_name == 'push' && github.ref_type == 'tag' }}
-        uses: softprops/action-gh-release@efb35369e0ad2afab669f228072c1b0d510eae64 # v3.0.3
-        with:
-          body_path: CHANGELOG.md
-          files: |
-            fabric/build/EasyArmorStands-Fabric-*.jar
-            neoforge/build/EasyArmorStands-NeoForge-*.jar
-            paper/build/EasyArmorStands-Paper-*.jar
-      - name: Publish release
-        if: ${{ github.event_name == 'push' && github.ref_type == 'tag' }}
-        run: ./gradlew modrinth publishAllPublicationsToHangar
-        env:
-          HANGAR_API_TOKEN: ${{ secrets.HANGAR_API_TOKEN }}
-          MODRINTH_TOKEN: ${{ secrets.MODRINTH_TOKEN }}
+          name: game-test-logs
+          path: build/run/gameTest/logs/
+          if-no-files-found: ignore

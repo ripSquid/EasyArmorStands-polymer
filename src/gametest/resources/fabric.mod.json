@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "id": "easyarmorstands-gametest",
+  "version": "1.0.0",
+  "name": "EasyArmorStands (Polymer) game tests",
+  "license": "GPL-3.0-or-later",
+  "environment": "*",
+  "entrypoints": {
+    "fabric-gametest": [
+      "re.koda.easyarmorstands.polymer.gizmo.EasyArmorStandsGameTests"
+    ]
+  },
+  "mixins": ["easyarmorstands-gametest.mixins.json"],
+  "depends": {
+    "easyarmorstands-polymer": "*"
+  }
+}

@@ -7,41 +7,14 @@
   "lockFileMaintenance": {
     "enabled": false
   },
-  "ignoreDeps": [
-    "io.papermc.paper:paper-api",
-    "com.mojang:minecraft",
-    "org.slf4j:slf4j-api"
-  ],
   "packageRules": [
     {
       "matchPackageNames": [
-        "net.fabricmc.fabric-api:fabric-api"
+        "net.fabricmc.fabric-api:fabric-api",
+        "eu.pb4:polymer-virtual-entity",
+        "eu.pb4:polymer-common"
       ],
       "versionCompatibility": "^(?<version>.*)\\+(?<compatibility>.*)$"
-    },
-    {
-      "matchPackageNames": [
-        "net.neoforged:neoforge"
-      ],
-      "versionCompatibility": "^(?<compatibility>.*)\\.(?<version>.*)$"
-    },
-    {
-      "matchPackageNames": [
-        "net.neoforged:neoform"
-      ],
-      "versionCompatibility": "^(?<compatibility>.*)-(?<version>.*)$"
-    },
-    {
-      "matchPackageNames": [
-        "com.palmergames.bukkit.towny:towny"
-      ],
-      "allowedVersions": "/^\\d+\\.\\d+\\.\\d+\\.0$/"
-    },
-    {
-      "matchDepNames": [
-        "net.fabricmc.fabric-loom"
-      ],
-      "allowedVersions": "/-SNAPSHOT$/"
     },
     {
       "matchDatasources": [

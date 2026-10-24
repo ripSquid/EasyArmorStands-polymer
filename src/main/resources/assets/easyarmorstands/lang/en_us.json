@@ -159,6 +159,7 @@
   "easyarmorstands.error.scale-unsupported": "This entity cannot be rescaled.",
   "easyarmorstands.error.set-unsupported": "The selected tool cannot accept custom values.",
   "easyarmorstands.error.shearing-unsupported": "Only display entities support shearing.",
+  "easyarmorstands.error.spawn-menu-disabled": "The spawn menu is disabled on this server",
   "easyarmorstands.error.text-background-unsupported": "This entity doesn't support a custom text background.",
   "easyarmorstands.error.text-line-width-unsupported": "This entity doesn't support a custom text line width.",
   "easyarmorstands.error.text-unsupported": "This entity doesn't support custom text.",

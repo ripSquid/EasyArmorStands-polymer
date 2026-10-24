@@ -1,0 +1,47 @@
+/*
+ * EasyArmorStands-Polymer - a Polymer based Fabric port of EasyArmorStands
+ * Copyright (C) 56738 and EasyArmorStands contributors (original work)
+ * Copyright (C) 2026 ripsquid (modifications)
+ *
+ * This file is derived from EasyArmorStands (https://github.com/56738/EasyArmorStands),
+ * commit c589944e23b49170fb7380742fe755c392f1e0c7, and was modified on 2026-10-22
+ * (package relocation and adaptation to the Polymer based Fabric port).
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+package re.koda.easyarmorstands.editor.layer;
+
+import re.koda.easyarmorstands.api.Axis;
+import re.koda.easyarmorstands.api.editor.Session;
+import re.koda.easyarmorstands.api.editor.tool.AxisScaleToolSession;
+import re.koda.easyarmorstands.api.particle.ParticleColor;
+import net.kyori.adventure.text.Component;
+import org.joml.Quaterniondc;
+import org.joml.Vector3dc;
+
+public class AxisScaleToolLayer extends AxisLineToolLayer {
+    public AxisScaleToolLayer(Session session, AxisScaleToolSession toolSession, Component name, ParticleColor color, double length, Vector3dc position, Quaterniondc rotation, Axis axis) {
+        super(session, toolSession, name, color, length, position, rotation, axis);
+    }
+
+    @Override
+    protected double getChange(double currentOffset, double initialOffset) {
+        if (initialOffset >= 0) {
+            initialOffset = Math.max(initialOffset, 0.01);
+        } else {
+            initialOffset = Math.min(initialOffset, -0.01);
+        }
+        return currentOffset / initialOffset;
+    }
+}

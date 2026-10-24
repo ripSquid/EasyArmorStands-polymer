@@ -1,0 +1,49 @@
+{
+  "schemaVersion": 1,
+  "id": "easyarmorstands-polymer",
+  "version": "${version}",
+  "name": "EasyArmorStands (Polymer)",
+  "description": "Server-side armor stand and display entity editor. A Polymer based Fabric port of EasyArmorStands by 56738.",
+  "authors": [
+    "56738",
+    "ripsquid"
+  ],
+  "contact": {
+    "sources": "https://github.com/ripSquid/EasyArmorStands-polymer",
+    "issues": "https://github.com/ripSquid/EasyArmorStands-polymer/issues"
+  },
+  "license": "GPL-3.0-or-later",
+  "icon": "assets/easyarmorstands/icon.png",
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      "re.koda.easyarmorstands.fabric.EasyArmorStandsMod"
+    ]
+  },
+  "mixins": [
+    "easyarmorstands-platform-fabric.mixins.json",
+    "easyarmorstands-fabric.mixins.json"
+  ],
+  "accessWidener": "easyarmorstands.classtweaker",
+  "depends": {
+    "fabricloader": ">=${loader_version}",
+    "fabric-api": "*",
+    "fabric-permission-api-v1": "*",
+    "minecraft": "~${minecraft_version}",
+    "java": ">=25",
+    "polymer-virtual-entity": "*",
+    "adventure-platform-fabric": "*",
+    "cloud": "*",
+    "fabric-permissions-api-v0": "*"
+  },
+  "breaks": {
+    "easyarmorstands": "*"
+  },
+  "custom": {
+    "modmenu": {
+      "links": {
+        "modmenu.discord": "https://discord.gg/AgNps57FFJ"
+      }
+    }
+  }
+}

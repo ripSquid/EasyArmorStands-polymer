@@ -1,0 +1,110 @@
+/*
+ * EasyArmorStands-Polymer - a Polymer based Fabric port of EasyArmorStands
+ * Copyright (C) 56738 and EasyArmorStands contributors (original work)
+ * Copyright (C) 2026 ripsquid (modifications)
+ *
+ * This file is derived from EasyArmorStands (https://github.com/56738/EasyArmorStands),
+ * commit c589944e23b49170fb7380742fe755c392f1e0c7, and was modified on 2026-10-22
+ * (package relocation and adaptation to the Polymer based Fabric port).
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+package re.koda.easyarmorstands.color;
+
+import re.koda.easyarmorstands.platform.color.RGBColor;
+import re.koda.easyarmorstands.api.menu.button.MenuButton;
+import re.koda.easyarmorstands.api.menu.button.MenuIcon;
+import re.koda.easyarmorstands.api.menu.click.MenuClickContext;
+import re.koda.easyarmorstands.menu.color.ColorPickerContext;
+import re.koda.easyarmorstands.menu.layout.MenuLayoutRule;
+import re.koda.easyarmorstands.util.Util;
+import net.kyori.adventure.key.Key;
+import net.kyori.adventure.text.Component;
+import org.jspecify.annotations.NullMarked;
+
+import java.util.List;
+
+@NullMarked
+public class ColorAxisChangeButton implements MenuButton {
+    private final ColorPickerContext context;
+    private final Key key;
+    private final MenuIcon icon;
+    private final ColorAxis axis;
+    private final int leftChange;
+    private final int rightChange;
+    private final int shiftChange;
+
+    public ColorAxisChangeButton(ColorPickerContext context, Key key, MenuIcon icon, ColorAxis axis, int leftChange, int rightChange, int shiftChange) {
+        this.context = context;
+        this.key = key;
+        this.icon = icon;
+        this.axis = axis;
+        this.leftChange = leftChange;
+        this.rightChange = rightChange;
+        this.shiftChange = shiftChange;
+    }
+
+    public static MenuLayoutRule rule(ColorAxis axis, boolean positive) {
+        return button -> button instanceof ColorAxisChangeButton colorAxisChangeButton
+                && colorAxisChangeButton.axis == axis
+                && (colorAxisChangeButton.leftChange > 0) == positive;
+    }
+
+    @Override
+    public Key key() {
+        return key;
+    }
+
+    @Override
+    public MenuIcon icon() {
+        return icon;
+    }
+
+    @Override
+    public Component name() {
+        return axis.getDisplayName();
+    }
+
+    @Override
+    public List<Component> description() {
+        RGBColor color = context.getColor();
+        int value = axis.get(color);
+        return List.of(
+                Component.text(value),
+                Util.formatColor(color),
+                Component.translatable("easyarmorstands.menu.color-picker.change"),
+                Component.translatable("easyarmorstands.menu.color-picker.change.right-click"),
+                Component.translatable("easyarmorstands.menu.color-picker.change.shift-click"));
+    }
+
+    @Override
+    public void onClick(MenuClickContext context) {
+        int change;
+        if (context.isShiftClick()) {
+            change = shiftChange;
+        } else if (context.isRightClick()) {
+            change = rightChange;
+        } else if (context.isLeftClick()) {
+            change = leftChange;
+        } else {
+            return;
+        }
+        RGBColor color = this.context.getColor();
+        int value = axis.get(color);
+        int newValue = Math.clamp(value + change, 0, 255);
+        RGBColor newColor = axis.set(color, newValue);
+        this.context.setColor(newColor);
+        context.updateMenu();
+    }
+}

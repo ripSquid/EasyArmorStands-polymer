@@ -1,242 +1,98 @@
-# EasyArmorStands
+# EasyArmorStands (Polymer)
 
-Armor stand and display entity editor.
+A server-side Fabric port of [EasyArmorStands by 56738](https://github.com/56738/EasyArmorStands),
+with Polymer virtual entities for the editor gizmos and support for Fabric's built-in Permission API.
+Players can edit armor stands and display entities with an unmodified client; no client mod or resource pack is required.
 
-![Screenshot](https://cdn.56738.me/easyarmorstands/banner2.png)
+This fork builds a single Fabric mod. It includes the local Polymer port's package relocation to
+`re.koda.easyarmorstands`, permission bridge, spawn-menu setting, and game tests.
+Paper, NeoForge, and Bukkit plugin integrations are not included.
 
-# Installation
+## Installation
 
-Download the `.jar` file and place it in your `plugins` folder.
+Requires Minecraft **26.3**, Java **25**, Fabric Loader **0.19.2 or newer**, and Fabric API **0.164.0+26.3 or newer** for Minecraft 26.3.
 
-# Usage
+Build with `./gradlew build`, then place `build/libs/EasyArmorStands-Polymer-0.1.0.jar` and Fabric API
+in the server's `mods` folder. Polymer, Adventure, Cloud, Configurate, and the legacy Fabric Permissions API
+are bundled in the mod jar.
 
-Use `/eas give` and follow the instructions.
+Remove the original EasyArmorStands mod before installing this fork. Its mod ID is
+`easyarmorstands-polymer`, and it cannot be loaded alongside `easyarmorstands`.
 
-If you get stuck, refer to the detailed instructions below.
+## Usage
 
-## Editing entities
+Use `/eas give` to get the editor tool, then hold it and right-click an entity to select it.
 
-Hold the tool and right-click an entity to select it.
+- Right-click a line to move the selected part, or a circle to rotate it.
+- Move or look around to adjust it, then right-click to confirm; left-click cancels.
+- Press **F** to open the selected entity's menu.
+- Hold **Shift** while selecting entities to build a group selection.
+- Use `/eas undo` and `/eas redo` to undo or redo edits.
 
-<img alt="Tools" src="https://cdn.56738.me/easyarmorstands/screenshots/tools2.png" width="50%" />
+Armor stands have six body-part bones plus a yellow position point. Select a bone before editing it.
+Display entities support movement, rotation, scaling, and a bounding-box editor through `/eas box`.
 
-Right-click a line to use the **Move** tool.
-Move your cursor by walking or looking around, then right-click to confirm your changes.
-You can abort your changes and restore the previous position by left-clicking instead.
+Useful commands:
 
-Right-click a circle to use the **Rotate** tool.
-This works just like the Move tool.
+- `/eas help`: show the available commands and their usage.
+- `/eas spawn`: open the entity spawn menu.
+- `/eas name`: edit an entity's custom name.
+- `/eas text`: edit a text display's text.
+- `/eas block`: choose a block display's block and block state.
+- `/eas clone`: duplicate the selection.
+- `/eas align`: align the selection with its block.
+- `/eas snap angle` and `/eas snap move`: configure snapping.
+- `/eas reset <property>`: reset a property.
 
-Some entities let you switch between local and global mode.
-Local mode is affected by the rotation, for example, you can use it to move an armor stand along its arms.
-Global mode uses global coordinates.
+Names and text support [MiniMessage formatting](https://docs.papermc.io/adventure/minimessage/format/).
 
-Use `/eas undo` and `/eas redo` to undo/redo your changes.
-You can undo any operation performed using EasyArmorStands, as well as manually placing or destroying armor stands.
+## Permissions
 
-## Armor stands
+Both command permissions and editor actions consult Fabric's built-in Permission API
+(`fabric-permission-api-v1`, included in Fabric API). Dotted EasyArmorStands permissions map to identifiers:
 
-Armor stands have 7 bones:
+- `easyarmorstands.give` becomes `easyarmorstands:give`.
+- `easyarmorstands.spawn` becomes `easyarmorstands:spawn`.
+- `easyarmorstands.property.glow` becomes `easyarmorstands:property/glow`.
 
-* Head
-* Body
-* Left arm
-* Right arm
-* Left leg
-* Right leg
-* Position
+A permission provider can grant or deny these identifiers. When it supplies no answer, checks fall back
+to the legacy `fabric-permissions-api-v0` providers and then the server's operator permission level.
+Fabric API itself does not provide a command for managing these grants.
 
-After selecting an armor stand, you will also have to select which bone you want to edit.
-The Position bone is the yellow point in the middle (below the head), the other bones are the white lines.
+The existing `easyarmorstands.survival` and `easyarmorstands.creative` permission packs remain available.
+See the [upstream permission reference](https://github.com/56738/EasyArmorStands/wiki/Permissions)
+for the individual permission names.
 
-<img alt="Bones" src="https://cdn.56738.me/easyarmorstands/screenshots/bones.png" width="50%" />
+## Configuration
 
-You can pick up and carry the armor stand by selecting the position bone and then selecting the **Pick up** tool in the
-middle (where the lines meet).
+Configuration is stored in `config/easyarmorstands/config.yml`. The local port adds:
 
-Use `/eas name` to edit the custom name of an armor stand.
-This is often used for holograms.
-Format the name using [MiniMessage](https://docs.papermc.io/adventure/minimessage/format/).
+```yaml
+editor:
+  spawn-menu: true
+```
 
-**Hint:** If you are on 1.19.4+, you should use text displays for holograms, see below.
+Set it to `false` to disable the spawn menu, including `/eas spawn` and the editor shortcut.
+Reload configuration with `/eas reload`.
 
-## Display entities
+## Building and testing
 
-Display entities can be moved, rotated and scaled.
+Use the included Gradle wrapper with Java 25:
 
-Use the menu to place an item into an item display.
+```sh
+./gradlew build
+./gradlew runGameTest
+```
 
-Use `/eas text` to edit the text of a text display.
-Format the text using [MiniMessage](https://docs.papermc.io/adventure/minimessage/format/).
-This command also has some subcommands such as `/eas text background`, which can be used to change the background color.
+The game-test task launches a dedicated test server and accepts the Minecraft EULA for that test run.
+It checks tool delivery, armor-stand selection/editing/undo/redo/cloning, Polymer gizmo creation and session
+cleanup, disabling the spawn menu, and permission grants and denials through Fabric's built-in API.
 
-**Hint:** Set the billboard mode to `center` in the menu and reset the rotation
-(`/eas reset`) to create a hologram which always looks at the player.
+The mod and corresponding source jar are generated in `build/libs/`.
+GitHub Actions builds both artifacts and runs the game tests; it does not publish releases or upload to mod repositories.
 
-Place a block in a block display by holding Shift and left-clicking it, or use `/eas block`.
-This command also supports block states like `minecraft:birch_stairs[facing=east]`.
+## License and attribution
 
-Use `/eas box` to resize or move the bounding box.
-Setting up a bounding box is important for client-side rendering performance.
-The client will not render display entities if the bounding box is not visible on the screen.
-By default, display entities do not have a bounding box, so they are always rendered.
-
-Use `/eas brightness` to set a custom brightness (light level) of a display entity.
-
-## FancyHolograms integration
-
-FancyHolograms holograms can be moved and scaled using EasyArmorStands.
-
-## Group selection
-
-Hold Shift while right-clicking an entity to add it to your group selection.
-After selecting the entities you want to edit, right-click anywhere without holding Shift to begin editing the group.
-
-<img alt="Group" src="https://cdn.56738.me/easyarmorstands/group.png" width="50%" />
-
-## Menu
-
-<img alt="Menu" src="https://cdn.56738.me/easyarmorstands/menu2.png" width="50%" align="right" />
-
-The menu can be accessed by pressing F.
-Group selections do not support the menu.
-
-On the bottom left, you can edit the entity equipment slots (armor, held items).
-
-The bottom right contains shortcut buttons to quickly select a certain bone.
-
-Armor stand settings such as visibility can be changed using the buttons in the top right.
-
-### Head Database integration
-
-If [Head Database](https://www.spigotmc.org/resources/head-database.14280/) is installed and you have permission to use
-it, you can click the button in the top left to open its menu.
-After selecting a head, you are returned to the EasyArmorStands menu and can quickly place it into an equipment slot.
-
-Permission: `headdb.open`
-
-### TrainCarts integration
-
-If [TrainCarts](https://www.spigotmc.org/resources/traincarts.39592/) is installed, a button to open the TrainCarts
-model browser is added to the top left.
-
-Permission: `easyarmorstands.traincarts.model`
-
-## Commands
-
-This list contains some important commands for features which cannot be accessed using the menu.
-Use `/eas help` to see the full list of commands and their full usage.
-
-* `/eas give`: Give yourself the editor tool
-* `/eas align`: Move the selected entity to the middle of its block
-* `/eas clone`: Duplicate the selected entity
-* `/eas snap angle`: Toggle angle snapping (or specify an increment)
-* `/eas snap move`: Toggle position snapping (or specify an increment)
-* `/eas reset <property>`: Reset a property
-
-# Permissions
-
-There are two permission packs which contain permissions which are recommended for survival or creative mode servers.
-
-| Permission                 | Description                                                  |
-|----------------------------|--------------------------------------------------------------|
-| `easyarmorstands.survival` | Allow editing armor stands and their basic properties        |
-| `easyarmorstands.creative` | Allow spawning and editing armor stands and display entities |
-
-For example, to allow players to use EasyArmorStands on a creative server, simply give them
-the `easyarmorstands.creative` permission.
-
-The full list of permissions is located [in the wiki](https://github.com/56738/EasyArmorStands/wiki/Permissions).
-
-## PlotSquared integration
-
-If [PlotSquared v6/v7](https://www.spigotmc.org/resources/plotsquared-v6.77506/) is installed, players can only edit
-entities on plots where they are allowed to build.
-
-Players with the `easyarmorstands.plotsquared.bypass` permission bypass this restriction.
-
-## WorldGuard integration
-
-If [WorldGuard](https://enginehub.org/worldguard) is installed, players can only edit entities if they are allowed to
-build.
-
-Players with the `easyarmorstands.worldguard.bypass` permission bypass this restriction.
-
-## GriefDefender integration
-
-If GriefDefender is installed, only trusted builders can edit entities in a claim.
-
-Players with the `easyarmorstands.griefdefender.bypass` permission bypass this restriction.
-
-## GriefPrevention integration
-
-If GriefPrevention is installed, players can only edit entities if they are allowed to build.
-
-Players with the `easyarmorstands.griefprevention.bypass` permission bypass this restriction.
-
-## HuskClaims integration
-
-If HuskClaims is installed, players can only edit entities if they are allowed to perform the `easyarmorstands:edit`
-operation.
-
-The `easyarmorstands:edit` operation (flag) should be configured in the
-[HuskClaims config](https://william278.net/docs/huskclaims/config).
-
-* Add it to `wilderness_rules` in `config.yml` to allow using EasyArmorStands in the wilderness.
-* Add it to `allowed_owner_operations` in `trust_levels.yml` to allow players ot use EasyArmorStands in their own plots.
-* Add it to `flags` of certain `trust_levels` in `trust_levels.yml` to configure which trust levels can use
-  EasyArmorStands in claims.
-
-Players with the `easyarmorstands.huskclaims.bypass` permission bypass this restriction.
-
-## Towny integration
-
-If Towny is installed, only trusted residents can edit entities in a claim.
-
-Players with the `easyarmorstands.towny.bypass` permission bypass this restriction.
-
-## Residence integration
-
-If Residence is installed, only players with the `build` flag can edit entities in a claim.
-
-Players with the `easyarmorstands.residence.bypass` permission bypass this restriction.
-
-## Lands integration
-
-If Lands is installed, the role flag `easyarmorstands_edit` (in the menu: *Edit entities*)
-can be used to restrict editing entities.
-
-Add the flag to `land.display` in `plugins/Lands/roles.yml` to show it in the menu.
-
-Players with the `easyarmorstands.lands.bypass` permission bypass this restriction.
-
-## BentoBox integration
-
-If BentoBox is installed, the flag `ARMOR_STAND` is required to edit entities.
-
-Players with the `easyarmorstands.bentobox.bypass` permission bypass this restriction.
-
-# Configuration
-
-The configuration file is automatically generated in the plugin folder.
-
-The most important options are documented [in the wiki](https://github.com/56738/EasyArmorStands/wiki/Configuration).
-
-Use `/eas reload` to reload the configuration file.
-
-## Localization
-
-[![Translation status](https://hosted.weblate.org/widget/easyarmorstands/v2/svg-badge.svg)](https://hosted.weblate.org/engage/easyarmorstands/)
-
-Please submit translations on [Weblate](https://hosted.weblate.org/engage/easyarmorstands/).
-If you would like to start translating to a new language, please ask on Discord.
-
-### Use your own translations
-
-* Copy the
-  [default messages](https://raw.githubusercontent.com/56738/EasyArmorStands/main/easyarmorstands-assets/src/main/resources/assets/easyarmorstands/lang/en_us.json)
-  into `plugins/EasyArmorStands/lang/XX_YY.json`.
-* Replace `XX_YY` with the in-game locale code listed in https://minecraft.wiki/w/Language#Languages.
-  This makes the file only apply to players with that language.
-
-Use `/eas reload` to reload all messages.
+Licensed under **GPL-3.0-or-later**. Based on EasyArmorStands commit
+`c589944e23b49170fb7380742fe755c392f1e0c7` and the gizmo library by 56738.
+See [LICENSE](LICENSE) and [NOTICE.md](NOTICE.md) for attribution and bundled-library licenses.

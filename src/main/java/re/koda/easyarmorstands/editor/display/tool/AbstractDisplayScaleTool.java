@@ -1,0 +1,182 @@
+/*
+ * EasyArmorStands-Polymer - a Polymer based Fabric port of EasyArmorStands
+ * Copyright (C) 56738 and EasyArmorStands contributors (original work)
+ * Copyright (C) 2026 ripsquid (modifications)
+ *
+ * This file is derived from EasyArmorStands (https://github.com/56738/EasyArmorStands),
+ * commit c589944e23b49170fb7380742fe755c392f1e0c7, and was modified on 2026-10-22
+ * (package relocation and adaptation to the Polymer based Fabric port).
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+package re.koda.easyarmorstands.editor.display.tool;
+
+import re.koda.easyarmorstands.EasyArmorStandsCommon;
+import re.koda.easyarmorstands.api.editor.tool.OrientedTool;
+import re.koda.easyarmorstands.api.editor.tool.PositionedTool;
+import re.koda.easyarmorstands.api.editor.tool.ToolContext;
+import re.koda.easyarmorstands.api.editor.tool.ToolSession;
+import re.koda.easyarmorstands.api.property.Property;
+import re.koda.easyarmorstands.api.property.PropertyContainer;
+import re.koda.easyarmorstands.api.property.type.DisplayPropertyTypes;
+import re.koda.easyarmorstands.api.property.type.EntityPropertyTypes;
+import re.koda.easyarmorstands.editor.tool.AbstractToolSession;
+import re.koda.easyarmorstands.platform.entity.Player;
+import re.koda.easyarmorstands.platform.util.Location;
+import org.jetbrains.annotations.NotNull;
+import org.joml.Quaterniondc;
+import org.joml.Quaternionf;
+import org.joml.Quaternionfc;
+import org.joml.Vector3d;
+import org.joml.Vector3dc;
+import org.joml.Vector3f;
+import org.joml.Vector3fc;
+
+public abstract class AbstractDisplayScaleTool<S extends ToolSession> implements PositionedTool<S>, OrientedTool<S> {
+    private final EasyArmorStandsCommon eas;
+    private final ToolContext context;
+    private final PropertyContainer properties;
+    private final Property<Location> locationProperty;
+    private final Property<Vector3fc> translationProperty;
+    private final Property<Vector3fc> scaleProperty;
+    private final Property<Float> heightProperty;
+
+    public AbstractDisplayScaleTool(EasyArmorStandsCommon eas, ToolContext context, PropertyContainer properties) {
+        this.eas = eas;
+        this.context = context;
+        this.properties = properties;
+        this.locationProperty = properties.get(EntityPropertyTypes.LOCATION);
+        this.translationProperty = properties.getOrNull(DisplayPropertyTypes.TRANSLATION);
+        this.scaleProperty = properties.get(DisplayPropertyTypes.SCALE);
+        this.heightProperty = properties.getOrNull(DisplayPropertyTypes.BOX_HEIGHT);
+    }
+
+    @Override
+    public @NotNull Vector3dc getPosition() {
+        return context.position().getPosition();
+    }
+
+    @Override
+    public @NotNull Quaterniondc getRotation() {
+        return context.rotation().getRotation();
+    }
+
+    @Override
+    public boolean canUse(@NotNull Player player) {
+        return scaleProperty.canChange(player);
+    }
+
+    protected PropertyContainer getProperties() {
+        return properties;
+    }
+
+    public abstract class AbstractDisplayScaleToolSession extends AbstractToolSession implements ToolSession {
+        private final Location originalLocation;
+        private final Vector3fc originalTranslation;
+        private final Vector3f currentTranslation;
+        private final Vector3f originalTranslationOffset;
+        private final Quaternionfc originalRotation;
+        private final Vector3fc originalScale;
+        private final Vector3f currentScale;
+        private final Vector3dc originalOffset;
+        private final Vector3d offsetChange;
+        private final Vector3f currentDelta;
+
+        public AbstractDisplayScaleToolSession(PropertyContainer properties) {
+            super(properties);
+            float height = heightProperty != null ? heightProperty.getValue() : 0;
+            this.originalLocation = locationProperty.getValue();
+            this.originalTranslation = translationProperty != null ? new Vector3f(translationProperty.getValue()) : new Vector3f();
+            this.currentTranslation = new Vector3f(originalTranslation);
+            this.originalTranslationOffset = new Vector3f(originalTranslation)
+                    .sub(0, height / 2, 0);
+            this.originalRotation = new Quaternionf(getRotation());
+            this.originalScale = new Vector3f(scaleProperty.getValue());
+            this.currentScale = new Vector3f(originalScale);
+            this.originalOffset = new Vector3d(originalLocation.position())
+                    .add(0, height / 2, 0)
+                    .sub(getPosition());
+            this.offsetChange = new Vector3d();
+            this.currentDelta = new Vector3f(1);
+        }
+
+        public static boolean isCloseToZero(float value) {
+            return Math.abs(value) < 1e-6;
+        }
+
+        public Vector3fc getOriginalScale() {
+            return originalScale;
+        }
+
+        public Vector3fc getScale() {
+            return scaleProperty.getValue();
+        }
+
+        public void setScale(Vector3fc scale) {
+            currentScale.set(scale);
+            eas.getConfiguration().limits.displayEntity.clampScale(currentScale);
+            scaleProperty.setValue(currentScale);
+
+            Vector3fc delta = getDelta();
+
+            offsetChange.set(originalOffset);
+            originalRotation.transformInverse(offsetChange);
+            offsetChange.mul(delta);
+            originalRotation.transform(offsetChange);
+            offsetChange.sub(originalOffset);
+
+            locationProperty.setValue(originalLocation
+                    .withPosition(originalLocation.position().add(offsetChange, new Vector3d())));
+
+            if (translationProperty != null) {
+                offsetChange.set(originalTranslationOffset);
+                originalRotation.transformInverse(offsetChange);
+                offsetChange.mul(delta);
+                originalRotation.transform(offsetChange);
+                offsetChange.sub(originalTranslationOffset);
+
+                originalTranslation.add(
+                        (float) offsetChange.x,
+                        (float) offsetChange.y,
+                        (float) offsetChange.z,
+                        currentTranslation);
+                translationProperty.setValue(currentTranslation);
+            }
+        }
+
+        private Vector3fc getDelta() {
+            currentDelta.x = getDelta(currentScale.x(), originalScale.x());
+            currentDelta.y = getDelta(currentScale.y(), originalScale.y());
+            currentDelta.z = getDelta(currentScale.z(), originalScale.z());
+            return currentDelta;
+        }
+
+        private float getDelta(float value, float original) {
+            if (isCloseToZero(original)) {
+                return 1;
+            } else {
+                return value / original;
+            }
+        }
+
+        @Override
+        public void revert() {
+            locationProperty.setValue(originalLocation);
+            if (translationProperty != null) {
+                translationProperty.setValue(originalTranslation);
+            }
+            scaleProperty.setValue(originalScale);
+        }
+    }
+}
